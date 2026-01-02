@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: secretary_bot
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/secretary_bot
+      - REDIS_URL=redis://redis:6379
+
+  db:
+    image: postgres:15
+    container_name: secretary_bot_db
+    environment:
+      POSTGRES_DB: secretary_bot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: secretary_bot_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
